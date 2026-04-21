@@ -18,6 +18,9 @@ interface SiteSummary {
 
 interface TopIp { ip: string; count: number }
 
+interface TopGroupClient { group_client: string; count: number }
+interface VaTitleGrouping { va_title_grouping: string; count: number }
+
 interface AgeingBucket { os: number; application: number }
 
 interface VaSiteSummary {
@@ -37,6 +40,8 @@ interface DashboardResponse {
   total_sites: number;
   site_summary: SiteSummary[];
   top_ips: TopIp[];
+  top_group_clients?: TopGroupClient[];
+  va_title_grouping_summary?: VaTitleGrouping[];
   va_site_summary: VaSiteSummary[];
 }
 
@@ -224,7 +229,27 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* VA Severity Breakdown - full width, rows */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">VA Ageing & Severity</CardTitle>
+              <CardDescription className="text-xs">Per site • OS vs Application</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-8">
+              {data.va_site_summary.map((va) => (
+                <div key={va.site_name} className="space-y-4">
+                  <p className="text-sm font-semibold">{va.site_name}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <SeverityTable title="Critical" data={va.critical} color="bg-criticality-high" />
+                    <SeverityTable title="High" data={va.high} color="bg-criticality-medium" />
+                    <SeverityTable title="Medium / Low" data={va.medium_low} color="bg-criticality-low" />
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Top IPs */}
             <Card>
               <CardHeader>
@@ -252,21 +277,65 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            {/* VA Severity Breakdown */}
+            {/* Top Group Clients */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">VA Ageing & Severity</CardTitle>
-                <CardDescription className="text-xs">Per site • OS vs Application</CardDescription>
+                <CardTitle className="text-base">Top Group Clients</CardTitle>
+                <CardDescription className="text-xs">By vulnerability count</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {data.va_site_summary.map((va) => (
-                  <div key={va.site_name} className="space-y-4">
-                    <p className="text-sm font-semibold">{va.site_name}</p>
-                    <SeverityTable title="Critical" data={va.critical} color="bg-criticality-high" />
-                    <SeverityTable title="High" data={va.high} color="bg-criticality-medium" />
-                    <SeverityTable title="Medium / Low" data={va.medium_low} color="bg-criticality-low" />
+              <CardContent>
+                {data.top_group_clients && data.top_group_clients.length > 0 ? (
+                  <div className="space-y-2">
+                    {data.top_group_clients.map((gc, i) => {
+                      const max = Math.max(...data.top_group_clients!.map((x) => x.count));
+                      const pct = (gc.count / max) * 100;
+                      return (
+                        <div key={gc.group_client} className="space-y-1">
+                          <div className="flex items-center justify-between text-xs gap-2">
+                            <span className="truncate">{i + 1}. {gc.group_client}</span>
+                            <Badge variant="secondary" className="text-xs">{gc.count}</Badge>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
+                ) : (
+                  <p className="text-xs text-muted-foreground">No data available</p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* VA Title Grouping */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">VA Title Grouping</CardTitle>
+                <CardDescription className="text-xs">Vulnerability categories</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {data.va_title_grouping_summary && data.va_title_grouping_summary.length > 0 ? (
+                  <div className="space-y-2">
+                    {data.va_title_grouping_summary.map((vt, i) => {
+                      const max = Math.max(...data.va_title_grouping_summary!.map((x) => x.count));
+                      const pct = (vt.count / max) * 100;
+                      return (
+                        <div key={vt.va_title_grouping} className="space-y-1">
+                          <div className="flex items-center justify-between text-xs gap-2">
+                            <span className="truncate">{i + 1}. {vt.va_title_grouping}</span>
+                            <Badge variant="secondary" className="text-xs">{vt.count}</Badge>
+                          </div>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-accent rounded-full" style={{ width: `${pct}%` }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">No data available</p>
+                )}
               </CardContent>
             </Card>
           </div>

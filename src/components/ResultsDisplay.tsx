@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { ChevronDown, ChevronRight, FileSpreadsheet } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChevronDown, ChevronRight, FileSpreadsheet, Download } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { downloadAsXlsx } from "@/lib/downloadXlsx";
 
 interface ResultsDisplayProps {
   data: Record<string, Record<string, any>[]>;
@@ -46,17 +47,30 @@ const FileAccordion = ({ fileName, rows }: { fileName: string; rows: Record<stri
 
   return (
     <Card className="border border-border">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
-      >
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+        <button
+          onClick={() => setOpen(!open)}
+          className="flex items-center gap-2 flex-1 text-left min-w-0"
+        >
           {open ? <ChevronDown className="h-4 w-4 text-primary" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-          <FileSpreadsheet className="h-4 w-4 text-primary" />
-          <span className="font-medium text-sm">{fileName}</span>
+          <FileSpreadsheet className="h-4 w-4 text-primary shrink-0" />
+          <span className="font-medium text-sm truncate">{fileName}</span>
+        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Badge variant="secondary" className="text-xs">{rows.length} rows</Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              downloadAsXlsx(rows, fileName);
+            }}
+          >
+            <Download className="h-3.5 w-3.5 mr-1" />
+            Download
+          </Button>
         </div>
-        <Badge variant="secondary" className="text-xs">{rows.length} rows</Badge>
-      </button>
+      </div>
 
       {open && (
         <CardContent className="pt-0 pb-4">

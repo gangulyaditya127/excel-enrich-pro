@@ -27,12 +27,12 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarContent>
         <div className="flex items-center gap-2 px-3 py-4 border-b border-sidebar-border">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
+          <div className="h-9 w-9 rounded-lg bg-gradient-primary flex items-center justify-center shrink-0 shadow-glow">
             <Shield className="h-4 w-4 text-primary-foreground" />
           </div>
           {!collapsed && (
-            <div className="min-w-0">
-              <p className="text-sm font-bold truncate">SecOps</p>
+            <div className="min-w-0 animate-fade-in">
+              <p className="text-sm font-bold truncate tracking-tight">SecOps</p>
               <p className="text-[10px] text-muted-foreground truncate">VM Console</p>
             </div>
           )}

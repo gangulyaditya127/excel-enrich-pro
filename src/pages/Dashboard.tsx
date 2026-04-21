@@ -45,22 +45,29 @@ interface DashboardResponse {
   va_site_summary: VaSiteSummary[];
 }
 
-const StatCard = ({ icon: Icon, label, value, tone = "default" }: any) => {
-  const toneClass =
-    tone === "success" ? "text-success" :
-    tone === "danger" ? "text-destructive" :
-    tone === "warning" ? "text-warning" :
-    "text-primary";
+const StatCard = ({ icon: Icon, label, value, tone = "default", delay = 0 }: any) => {
+  const toneMap: Record<string, { bg: string; ring: string; text: string }> = {
+    success: { bg: "bg-gradient-success", ring: "ring-success/20", text: "text-success" },
+    danger: { bg: "bg-gradient-danger", ring: "ring-destructive/20", text: "text-destructive" },
+    warning: { bg: "bg-gradient-warning", ring: "ring-warning/20", text: "text-warning" },
+    default: { bg: "bg-gradient-primary", ring: "ring-primary/20", text: "text-primary" },
+  };
+  const t = toneMap[tone] || toneMap.default;
   return (
-    <Card>
-      <CardContent className="p-4">
+    <Card
+      className="card-hover relative overflow-hidden border-border/60 bg-gradient-card animate-slide-up"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className={`absolute inset-x-0 top-0 h-0.5 ${t.bg}`} />
+      <div className={`absolute -right-6 -top-6 h-20 w-20 rounded-full ${t.bg} opacity-10 blur-2xl`} />
+      <CardContent className="p-4 relative">
         <div className="flex items-center gap-3">
-          <div className={`h-9 w-9 rounded-lg bg-muted flex items-center justify-center ${toneClass}`}>
-            <Icon className="h-4 w-4" />
+          <div className={`h-10 w-10 rounded-xl ${t.bg} flex items-center justify-center shrink-0 shadow-md ring-4 ${t.ring}`}>
+            <Icon className="h-4 w-4 text-white" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground truncate">{label}</p>
-            <p className="text-xl font-bold">{value}</p>
+            <p className="text-[11px] font-medium text-muted-foreground truncate uppercase tracking-wider">{label}</p>
+            <p className="text-2xl font-bold tracking-tight">{value}</p>
           </div>
         </div>
       </CardContent>
@@ -78,15 +85,15 @@ const SeverityTable = ({ title, data, color }: { title: string; data: Record<str
   const keys = Object.keys(data || {});
   if (keys.length === 0) return null;
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="flex items-center gap-2 mb-2">
-        <span className={`h-2 w-2 rounded-full ${color}`} />
-        <h4 className="text-sm font-semibold">{title}</h4>
+        <span className={`h-2.5 w-2.5 rounded-full ${color} shadow-md`} style={{ boxShadow: `0 0 12px hsl(var(--criticality-high) / 0.6)` }} />
+        <h4 className="text-sm font-semibold tracking-tight">{title}</h4>
       </div>
-      <div className="overflow-x-auto rounded-lg border border-border">
+      <div className="overflow-x-auto rounded-xl border border-border/60 bg-gradient-card shadow-card-soft">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-muted/40 hover:bg-muted/40">
               <TableHead className="text-xs">Ageing</TableHead>
               <TableHead className="text-xs text-right">OS</TableHead>
               <TableHead className="text-xs text-right">Application</TableHead>
@@ -94,10 +101,10 @@ const SeverityTable = ({ title, data, color }: { title: string; data: Record<str
           </TableHeader>
           <TableBody>
             {keys.map((k) => (
-              <TableRow key={k}>
+              <TableRow key={k} className="hover:bg-muted/30 transition-colors">
                 <TableCell className="text-xs">{labelFor(k)}</TableCell>
-                <TableCell className="text-xs text-right">{data[k].os}</TableCell>
-                <TableCell className="text-xs text-right">{data[k].application}</TableCell>
+                <TableCell className="text-xs text-right font-mono font-medium">{data[k].os}</TableCell>
+                <TableCell className="text-xs text-right font-mono font-medium">{data[k].application}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -153,17 +160,32 @@ const Dashboard = () => {
 
   return (
     <div className="container max-w-7xl mx-auto py-8 px-4 space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Site summary, scan status, and vulnerability overview.
-          </p>
+      {/* Hero header */}
+      <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-primary shadow-elegant animate-fade-in">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,hsl(0_0%_100%/0.15),transparent_50%)]" />
+        <div className="absolute -right-12 -bottom-12 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
+        <div className="relative flex items-center justify-between flex-wrap gap-3 p-6">
+          <div className="text-primary-foreground">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+              <p className="text-[11px] uppercase tracking-widest opacity-80">Live overview</p>
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight">Security Dashboard</h1>
+            <p className="text-sm opacity-90 mt-1">
+              Site summary, scan status, and vulnerability intelligence.
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={load}
+            disabled={loading}
+            size="sm"
+            className="bg-white/15 hover:bg-white/25 text-primary-foreground border border-white/20 backdrop-blur"
+          >
+            {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+            Refresh
+          </Button>
         </div>
-        <Button variant="outline" onClick={load} disabled={loading} size="sm">
-          {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
-          Refresh
-        </Button>
       </div>
 
       {error && <StatusBanner type="error" message={error} onDismiss={() => setError(null)} />}
@@ -178,32 +200,39 @@ const Dashboard = () => {
         <>
           {/* Top stats */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-            <StatCard icon={Server} label="Total Sites" value={data.total_sites} />
-            <StatCard icon={Activity} label="Defined Assets" value={totals?.assets ?? 0} />
-            <StatCard icon={CheckCircle2} label="Scan Completed" value={totals?.completed ?? 0} tone="success" />
-            <StatCard icon={XCircle} label="Scan Failed" value={totals?.failed ?? 0} tone="danger" />
-            <StatCard icon={Clock} label="Unscanned" value={totals?.unscanned ?? 0} tone="warning" />
+            <StatCard icon={Server} label="Total Sites" value={data.total_sites} delay={0} />
+            <StatCard icon={Activity} label="Defined Assets" value={totals?.assets ?? 0} delay={50} />
+            <StatCard icon={CheckCircle2} label="Scan Completed" value={totals?.completed ?? 0} tone="success" delay={100} />
+            <StatCard icon={XCircle} label="Scan Failed" value={totals?.failed ?? 0} tone="danger" delay={150} />
+            <StatCard icon={Clock} label="Unscanned" value={totals?.unscanned ?? 0} tone="warning" delay={200} />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <StatCard icon={ShieldAlert} label="Total Vulnerabilities" value={vaTotals?.total ?? 0} tone="danger" />
-            <StatCard icon={AlertTriangle} label="New Vulnerabilities" value={vaTotals?.newV ?? 0} tone="warning" />
-            <StatCard icon={ShieldAlert} label="Exploitable VA" value={vaTotals?.exploit ?? 0} tone="danger" />
-            <StatCard icon={AlertTriangle} label="EOSL Count" value={vaTotals?.eosl ?? 0} tone="warning" />
-            <StatCard icon={Globe} label="Perimeter VA" value={vaTotals?.perimeter ?? 0} />
+            <StatCard icon={ShieldAlert} label="Total Vulnerabilities" value={vaTotals?.total ?? 0} tone="danger" delay={250} />
+            <StatCard icon={AlertTriangle} label="New Vulnerabilities" value={vaTotals?.newV ?? 0} tone="warning" delay={300} />
+            <StatCard icon={ShieldAlert} label="Exploitable VA" value={vaTotals?.exploit ?? 0} tone="danger" delay={350} />
+            <StatCard icon={AlertTriangle} label="EOSL Count" value={vaTotals?.eosl ?? 0} tone="warning" delay={400} />
+            <StatCard icon={Globe} label="Perimeter VA" value={vaTotals?.perimeter ?? 0} delay={450} />
           </div>
 
           {/* Site summary table */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Site Summary</CardTitle>
-              <CardDescription className="text-xs">Per-site scan status</CardDescription>
+          <Card className="border-border/60 bg-gradient-card shadow-card-soft animate-slide-up overflow-hidden">
+            <CardHeader className="border-b border-border/40">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center shadow-md">
+                  <Server className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-base tracking-tight">Site Summary</CardTitle>
+                  <CardDescription className="text-xs">Per-site scan status</CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
+                    <TableRow className="bg-muted/40 hover:bg-muted/40">
                       <TableHead>Site</TableHead>
                       <TableHead className="text-right">Assets</TableHead>
                       <TableHead className="text-right">Completed</TableHead>
@@ -214,13 +243,13 @@ const Dashboard = () => {
                   </TableHeader>
                   <TableBody>
                     {data.site_summary.map((s) => (
-                      <TableRow key={s.site_name}>
+                      <TableRow key={s.site_name} className="hover:bg-muted/30 transition-colors">
                         <TableCell className="font-medium text-sm">{s.site_name}</TableCell>
-                        <TableCell className="text-right text-sm">{s.defined_asset_count}</TableCell>
-                        <TableCell className="text-right text-sm text-success">{s.scan_completed}</TableCell>
-                        <TableCell className="text-right text-sm text-destructive">{s.scan_failed}</TableCell>
-                        <TableCell className="text-right text-sm text-warning">{s.scan_unscanned}</TableCell>
-                        <TableCell className="text-right text-sm">{s.perimeter_devices}</TableCell>
+                        <TableCell className="text-right text-sm font-mono">{s.defined_asset_count}</TableCell>
+                        <TableCell className="text-right text-sm font-mono"><Badge variant="outline" className="bg-success/10 text-success border-success/30">{s.scan_completed}</Badge></TableCell>
+                        <TableCell className="text-right text-sm font-mono"><Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/30">{s.scan_failed}</Badge></TableCell>
+                        <TableCell className="text-right text-sm font-mono"><Badge variant="outline" className="bg-warning/10 text-warning border-warning/30">{s.scan_unscanned}</Badge></TableCell>
+                        <TableCell className="text-right text-sm font-mono">{s.perimeter_devices}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -230,15 +259,25 @@ const Dashboard = () => {
           </Card>
 
           {/* VA Severity Breakdown - full width, rows */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">VA Ageing & Severity</CardTitle>
-              <CardDescription className="text-xs">Per site • OS vs Application</CardDescription>
+          <Card className="border-border/60 bg-gradient-card shadow-card-soft animate-slide-up overflow-hidden">
+            <CardHeader className="border-b border-border/40">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-gradient-danger flex items-center justify-center shadow-md">
+                  <ShieldAlert className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-base tracking-tight">VA Ageing & Severity</CardTitle>
+                  <CardDescription className="text-xs">Per site • OS vs Application</CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="space-y-8">
               {data.va_site_summary.map((va) => (
-                <div key={va.site_name} className="space-y-4">
-                  <p className="text-sm font-semibold">{va.site_name}</p>
+                <div key={va.site_name} className="space-y-4 pt-4">
+                  <p className="text-sm font-semibold tracking-tight flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    {va.site_name}
+                  </p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <SeverityTable title="Critical" data={va.critical} color="bg-criticality-high" />
                     <SeverityTable title="High" data={va.high} color="bg-criticality-medium" />
@@ -251,24 +290,31 @@ const Dashboard = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Top IPs */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Top IPs by Vulnerabilities</CardTitle>
-                <CardDescription className="text-xs">Most affected hosts</CardDescription>
+            <Card className="border-border/60 bg-gradient-card shadow-card-soft card-hover animate-slide-up">
+              <CardHeader className="border-b border-border/40">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center shadow-md">
+                    <Globe className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base tracking-tight">Top IPs</CardTitle>
+                    <CardDescription className="text-xs">Most affected hosts</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
+                <div className="space-y-3 pt-2">
                   {data.top_ips.map((ip, i) => {
                     const max = Math.max(...data.top_ips.map((x) => x.count));
                     const pct = (ip.count / max) * 100;
                     return (
                       <div key={ip.ip} className="space-y-1">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-mono">{i + 1}. {ip.ip}</span>
-                          <Badge variant="secondary" className="text-xs">{ip.count}</Badge>
+                          <span className="font-mono"><span className="text-muted-foreground">{i + 1}.</span> {ip.ip}</span>
+                          <Badge variant="secondary" className="text-xs font-mono">{ip.count}</Badge>
                         </div>
-                        <div className="h-2 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                        <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-primary rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
                         </div>
                       </div>
                     );
@@ -278,25 +324,32 @@ const Dashboard = () => {
             </Card>
 
             {/* Top Group Clients */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Top Group Clients</CardTitle>
-                <CardDescription className="text-xs">By vulnerability count</CardDescription>
+            <Card className="border-border/60 bg-gradient-card shadow-card-soft card-hover animate-slide-up">
+              <CardHeader className="border-b border-border/40">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-gradient-warning flex items-center justify-center shadow-md">
+                    <Activity className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base tracking-tight">Top Group Clients</CardTitle>
+                    <CardDescription className="text-xs">By vulnerability count</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {data.top_group_clients && data.top_group_clients.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-3 pt-2">
                     {data.top_group_clients.map((gc, i) => {
                       const max = Math.max(...data.top_group_clients!.map((x) => x.count));
                       const pct = (gc.count / max) * 100;
                       return (
                         <div key={gc.group_client} className="space-y-1">
                           <div className="flex items-center justify-between text-xs gap-2">
-                            <span className="truncate">{i + 1}. {gc.group_client}</span>
-                            <Badge variant="secondary" className="text-xs">{gc.count}</Badge>
+                            <span className="truncate"><span className="text-muted-foreground">{i + 1}.</span> {gc.group_client}</span>
+                            <Badge variant="secondary" className="text-xs font-mono">{gc.count}</Badge>
                           </div>
-                          <div className="h-2 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                          <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden">
+                            <div className="h-full bg-gradient-warning rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       );
@@ -309,25 +362,32 @@ const Dashboard = () => {
             </Card>
 
             {/* VA Title Grouping */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">VA Title Grouping</CardTitle>
-                <CardDescription className="text-xs">Vulnerability categories</CardDescription>
+            <Card className="border-border/60 bg-gradient-card shadow-card-soft card-hover animate-slide-up">
+              <CardHeader className="border-b border-border/40">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-gradient-danger flex items-center justify-center shadow-md">
+                    <AlertTriangle className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base tracking-tight">VA Title Grouping</CardTitle>
+                    <CardDescription className="text-xs">Vulnerability categories</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {data.va_title_grouping_summary && data.va_title_grouping_summary.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-3 pt-2">
                     {data.va_title_grouping_summary.map((vt, i) => {
                       const max = Math.max(...data.va_title_grouping_summary!.map((x) => x.count));
                       const pct = (vt.count / max) * 100;
                       return (
                         <div key={vt.va_title_grouping} className="space-y-1">
                           <div className="flex items-center justify-between text-xs gap-2">
-                            <span className="truncate">{i + 1}. {vt.va_title_grouping}</span>
-                            <Badge variant="secondary" className="text-xs">{vt.count}</Badge>
+                            <span className="truncate"><span className="text-muted-foreground">{i + 1}.</span> {vt.va_title_grouping}</span>
+                            <Badge variant="secondary" className="text-xs font-mono">{vt.count}</Badge>
                           </div>
-                          <div className="h-2 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full bg-accent rounded-full" style={{ width: `${pct}%` }} />
+                          <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden">
+                            <div className="h-full bg-gradient-danger rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       );

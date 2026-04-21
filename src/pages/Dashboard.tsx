@@ -160,17 +160,32 @@ const Dashboard = () => {
 
   return (
     <div className="container max-w-7xl mx-auto py-8 px-4 space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Site summary, scan status, and vulnerability overview.
-          </p>
+      {/* Hero header */}
+      <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-primary shadow-elegant animate-fade-in">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,hsl(0_0%_100%/0.15),transparent_50%)]" />
+        <div className="absolute -right-12 -bottom-12 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
+        <div className="relative flex items-center justify-between flex-wrap gap-3 p-6">
+          <div className="text-primary-foreground">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+              <p className="text-[11px] uppercase tracking-widest opacity-80">Live overview</p>
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight">Security Dashboard</h1>
+            <p className="text-sm opacity-90 mt-1">
+              Site summary, scan status, and vulnerability intelligence.
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={load}
+            disabled={loading}
+            size="sm"
+            className="bg-white/15 hover:bg-white/25 text-primary-foreground border border-white/20 backdrop-blur"
+          >
+            {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+            Refresh
+          </Button>
         </div>
-        <Button variant="outline" onClick={load} disabled={loading} size="sm">
-          {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
-          Refresh
-        </Button>
       </div>
 
       {error && <StatusBanner type="error" message={error} onDismiss={() => setError(null)} />}
@@ -185,19 +200,19 @@ const Dashboard = () => {
         <>
           {/* Top stats */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-            <StatCard icon={Server} label="Total Sites" value={data.total_sites} />
-            <StatCard icon={Activity} label="Defined Assets" value={totals?.assets ?? 0} />
-            <StatCard icon={CheckCircle2} label="Scan Completed" value={totals?.completed ?? 0} tone="success" />
-            <StatCard icon={XCircle} label="Scan Failed" value={totals?.failed ?? 0} tone="danger" />
-            <StatCard icon={Clock} label="Unscanned" value={totals?.unscanned ?? 0} tone="warning" />
+            <StatCard icon={Server} label="Total Sites" value={data.total_sites} delay={0} />
+            <StatCard icon={Activity} label="Defined Assets" value={totals?.assets ?? 0} delay={50} />
+            <StatCard icon={CheckCircle2} label="Scan Completed" value={totals?.completed ?? 0} tone="success" delay={100} />
+            <StatCard icon={XCircle} label="Scan Failed" value={totals?.failed ?? 0} tone="danger" delay={150} />
+            <StatCard icon={Clock} label="Unscanned" value={totals?.unscanned ?? 0} tone="warning" delay={200} />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <StatCard icon={ShieldAlert} label="Total Vulnerabilities" value={vaTotals?.total ?? 0} tone="danger" />
-            <StatCard icon={AlertTriangle} label="New Vulnerabilities" value={vaTotals?.newV ?? 0} tone="warning" />
-            <StatCard icon={ShieldAlert} label="Exploitable VA" value={vaTotals?.exploit ?? 0} tone="danger" />
-            <StatCard icon={AlertTriangle} label="EOSL Count" value={vaTotals?.eosl ?? 0} tone="warning" />
-            <StatCard icon={Globe} label="Perimeter VA" value={vaTotals?.perimeter ?? 0} />
+            <StatCard icon={ShieldAlert} label="Total Vulnerabilities" value={vaTotals?.total ?? 0} tone="danger" delay={250} />
+            <StatCard icon={AlertTriangle} label="New Vulnerabilities" value={vaTotals?.newV ?? 0} tone="warning" delay={300} />
+            <StatCard icon={ShieldAlert} label="Exploitable VA" value={vaTotals?.exploit ?? 0} tone="danger" delay={350} />
+            <StatCard icon={AlertTriangle} label="EOSL Count" value={vaTotals?.eosl ?? 0} tone="warning" delay={400} />
+            <StatCard icon={Globe} label="Perimeter VA" value={vaTotals?.perimeter ?? 0} delay={450} />
           </div>
 
           {/* Site summary table */}

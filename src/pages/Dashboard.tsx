@@ -45,22 +45,29 @@ interface DashboardResponse {
   va_site_summary: VaSiteSummary[];
 }
 
-const StatCard = ({ icon: Icon, label, value, tone = "default" }: any) => {
-  const toneClass =
-    tone === "success" ? "text-success" :
-    tone === "danger" ? "text-destructive" :
-    tone === "warning" ? "text-warning" :
-    "text-primary";
+const StatCard = ({ icon: Icon, label, value, tone = "default", delay = 0 }: any) => {
+  const toneMap: Record<string, { bg: string; ring: string; text: string }> = {
+    success: { bg: "bg-gradient-success", ring: "ring-success/20", text: "text-success" },
+    danger: { bg: "bg-gradient-danger", ring: "ring-destructive/20", text: "text-destructive" },
+    warning: { bg: "bg-gradient-warning", ring: "ring-warning/20", text: "text-warning" },
+    default: { bg: "bg-gradient-primary", ring: "ring-primary/20", text: "text-primary" },
+  };
+  const t = toneMap[tone] || toneMap.default;
   return (
-    <Card>
-      <CardContent className="p-4">
+    <Card
+      className="card-hover relative overflow-hidden border-border/60 bg-gradient-card animate-slide-up"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className={`absolute inset-x-0 top-0 h-0.5 ${t.bg}`} />
+      <div className={`absolute -right-6 -top-6 h-20 w-20 rounded-full ${t.bg} opacity-10 blur-2xl`} />
+      <CardContent className="p-4 relative">
         <div className="flex items-center gap-3">
-          <div className={`h-9 w-9 rounded-lg bg-muted flex items-center justify-center ${toneClass}`}>
-            <Icon className="h-4 w-4" />
+          <div className={`h-10 w-10 rounded-xl ${t.bg} flex items-center justify-center shrink-0 shadow-md ring-4 ${t.ring}`}>
+            <Icon className="h-4 w-4 text-white" />
           </div>
           <div className="min-w-0">
-            <p className="text-xs text-muted-foreground truncate">{label}</p>
-            <p className="text-xl font-bold">{value}</p>
+            <p className="text-[11px] font-medium text-muted-foreground truncate uppercase tracking-wider">{label}</p>
+            <p className="text-2xl font-bold tracking-tight">{value}</p>
           </div>
         </div>
       </CardContent>
@@ -78,15 +85,15 @@ const SeverityTable = ({ title, data, color }: { title: string; data: Record<str
   const keys = Object.keys(data || {});
   if (keys.length === 0) return null;
   return (
-    <div>
+    <div className="animate-fade-in">
       <div className="flex items-center gap-2 mb-2">
-        <span className={`h-2 w-2 rounded-full ${color}`} />
-        <h4 className="text-sm font-semibold">{title}</h4>
+        <span className={`h-2.5 w-2.5 rounded-full ${color} shadow-md`} style={{ boxShadow: `0 0 12px hsl(var(--criticality-high) / 0.6)` }} />
+        <h4 className="text-sm font-semibold tracking-tight">{title}</h4>
       </div>
-      <div className="overflow-x-auto rounded-lg border border-border">
+      <div className="overflow-x-auto rounded-xl border border-border/60 bg-gradient-card shadow-card-soft">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-muted/40 hover:bg-muted/40">
               <TableHead className="text-xs">Ageing</TableHead>
               <TableHead className="text-xs text-right">OS</TableHead>
               <TableHead className="text-xs text-right">Application</TableHead>
@@ -94,10 +101,10 @@ const SeverityTable = ({ title, data, color }: { title: string; data: Record<str
           </TableHeader>
           <TableBody>
             {keys.map((k) => (
-              <TableRow key={k}>
+              <TableRow key={k} className="hover:bg-muted/30 transition-colors">
                 <TableCell className="text-xs">{labelFor(k)}</TableCell>
-                <TableCell className="text-xs text-right">{data[k].os}</TableCell>
-                <TableCell className="text-xs text-right">{data[k].application}</TableCell>
+                <TableCell className="text-xs text-right font-mono font-medium">{data[k].os}</TableCell>
+                <TableCell className="text-xs text-right font-mono font-medium">{data[k].application}</TableCell>
               </TableRow>
             ))}
           </TableBody>

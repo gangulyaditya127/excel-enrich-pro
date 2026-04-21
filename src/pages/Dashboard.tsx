@@ -216,16 +216,23 @@ const Dashboard = () => {
           </div>
 
           {/* Site summary table */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Site Summary</CardTitle>
-              <CardDescription className="text-xs">Per-site scan status</CardDescription>
+          <Card className="border-border/60 bg-gradient-card shadow-card-soft animate-slide-up overflow-hidden">
+            <CardHeader className="border-b border-border/40">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center shadow-md">
+                  <Server className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-base tracking-tight">Site Summary</CardTitle>
+                  <CardDescription className="text-xs">Per-site scan status</CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
+                    <TableRow className="bg-muted/40 hover:bg-muted/40">
                       <TableHead>Site</TableHead>
                       <TableHead className="text-right">Assets</TableHead>
                       <TableHead className="text-right">Completed</TableHead>
@@ -236,13 +243,13 @@ const Dashboard = () => {
                   </TableHeader>
                   <TableBody>
                     {data.site_summary.map((s) => (
-                      <TableRow key={s.site_name}>
+                      <TableRow key={s.site_name} className="hover:bg-muted/30 transition-colors">
                         <TableCell className="font-medium text-sm">{s.site_name}</TableCell>
-                        <TableCell className="text-right text-sm">{s.defined_asset_count}</TableCell>
-                        <TableCell className="text-right text-sm text-success">{s.scan_completed}</TableCell>
-                        <TableCell className="text-right text-sm text-destructive">{s.scan_failed}</TableCell>
-                        <TableCell className="text-right text-sm text-warning">{s.scan_unscanned}</TableCell>
-                        <TableCell className="text-right text-sm">{s.perimeter_devices}</TableCell>
+                        <TableCell className="text-right text-sm font-mono">{s.defined_asset_count}</TableCell>
+                        <TableCell className="text-right text-sm font-mono"><Badge variant="outline" className="bg-success/10 text-success border-success/30">{s.scan_completed}</Badge></TableCell>
+                        <TableCell className="text-right text-sm font-mono"><Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/30">{s.scan_failed}</Badge></TableCell>
+                        <TableCell className="text-right text-sm font-mono"><Badge variant="outline" className="bg-warning/10 text-warning border-warning/30">{s.scan_unscanned}</Badge></TableCell>
+                        <TableCell className="text-right text-sm font-mono">{s.perimeter_devices}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -252,15 +259,25 @@ const Dashboard = () => {
           </Card>
 
           {/* VA Severity Breakdown - full width, rows */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">VA Ageing & Severity</CardTitle>
-              <CardDescription className="text-xs">Per site • OS vs Application</CardDescription>
+          <Card className="border-border/60 bg-gradient-card shadow-card-soft animate-slide-up overflow-hidden">
+            <CardHeader className="border-b border-border/40">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-lg bg-gradient-danger flex items-center justify-center shadow-md">
+                  <ShieldAlert className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-base tracking-tight">VA Ageing & Severity</CardTitle>
+                  <CardDescription className="text-xs">Per site • OS vs Application</CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="space-y-8">
               {data.va_site_summary.map((va) => (
-                <div key={va.site_name} className="space-y-4">
-                  <p className="text-sm font-semibold">{va.site_name}</p>
+                <div key={va.site_name} className="space-y-4 pt-4">
+                  <p className="text-sm font-semibold tracking-tight flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                    {va.site_name}
+                  </p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <SeverityTable title="Critical" data={va.critical} color="bg-criticality-high" />
                     <SeverityTable title="High" data={va.high} color="bg-criticality-medium" />
@@ -273,24 +290,31 @@ const Dashboard = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Top IPs */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Top IPs by Vulnerabilities</CardTitle>
-                <CardDescription className="text-xs">Most affected hosts</CardDescription>
+            <Card className="border-border/60 bg-gradient-card shadow-card-soft card-hover animate-slide-up">
+              <CardHeader className="border-b border-border/40">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center shadow-md">
+                    <Globe className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base tracking-tight">Top IPs</CardTitle>
+                    <CardDescription className="text-xs">Most affected hosts</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
+                <div className="space-y-3 pt-2">
                   {data.top_ips.map((ip, i) => {
                     const max = Math.max(...data.top_ips.map((x) => x.count));
                     const pct = (ip.count / max) * 100;
                     return (
                       <div key={ip.ip} className="space-y-1">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-mono">{i + 1}. {ip.ip}</span>
-                          <Badge variant="secondary" className="text-xs">{ip.count}</Badge>
+                          <span className="font-mono"><span className="text-muted-foreground">{i + 1}.</span> {ip.ip}</span>
+                          <Badge variant="secondary" className="text-xs font-mono">{ip.count}</Badge>
                         </div>
-                        <div className="h-2 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                        <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-primary rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
                         </div>
                       </div>
                     );
@@ -300,25 +324,32 @@ const Dashboard = () => {
             </Card>
 
             {/* Top Group Clients */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Top Group Clients</CardTitle>
-                <CardDescription className="text-xs">By vulnerability count</CardDescription>
+            <Card className="border-border/60 bg-gradient-card shadow-card-soft card-hover animate-slide-up">
+              <CardHeader className="border-b border-border/40">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-gradient-warning flex items-center justify-center shadow-md">
+                    <Activity className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base tracking-tight">Top Group Clients</CardTitle>
+                    <CardDescription className="text-xs">By vulnerability count</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {data.top_group_clients && data.top_group_clients.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-3 pt-2">
                     {data.top_group_clients.map((gc, i) => {
                       const max = Math.max(...data.top_group_clients!.map((x) => x.count));
                       const pct = (gc.count / max) * 100;
                       return (
                         <div key={gc.group_client} className="space-y-1">
                           <div className="flex items-center justify-between text-xs gap-2">
-                            <span className="truncate">{i + 1}. {gc.group_client}</span>
-                            <Badge variant="secondary" className="text-xs">{gc.count}</Badge>
+                            <span className="truncate"><span className="text-muted-foreground">{i + 1}.</span> {gc.group_client}</span>
+                            <Badge variant="secondary" className="text-xs font-mono">{gc.count}</Badge>
                           </div>
-                          <div className="h-2 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full bg-primary rounded-full" style={{ width: `${pct}%` }} />
+                          <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden">
+                            <div className="h-full bg-gradient-warning rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       );
@@ -331,25 +362,32 @@ const Dashboard = () => {
             </Card>
 
             {/* VA Title Grouping */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">VA Title Grouping</CardTitle>
-                <CardDescription className="text-xs">Vulnerability categories</CardDescription>
+            <Card className="border-border/60 bg-gradient-card shadow-card-soft card-hover animate-slide-up">
+              <CardHeader className="border-b border-border/40">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-lg bg-gradient-danger flex items-center justify-center shadow-md">
+                    <AlertTriangle className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base tracking-tight">VA Title Grouping</CardTitle>
+                    <CardDescription className="text-xs">Vulnerability categories</CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {data.va_title_grouping_summary && data.va_title_grouping_summary.length > 0 ? (
-                  <div className="space-y-2">
+                  <div className="space-y-3 pt-2">
                     {data.va_title_grouping_summary.map((vt, i) => {
                       const max = Math.max(...data.va_title_grouping_summary!.map((x) => x.count));
                       const pct = (vt.count / max) * 100;
                       return (
                         <div key={vt.va_title_grouping} className="space-y-1">
                           <div className="flex items-center justify-between text-xs gap-2">
-                            <span className="truncate">{i + 1}. {vt.va_title_grouping}</span>
-                            <Badge variant="secondary" className="text-xs">{vt.count}</Badge>
+                            <span className="truncate"><span className="text-muted-foreground">{i + 1}.</span> {vt.va_title_grouping}</span>
+                            <Badge variant="secondary" className="text-xs font-mono">{vt.count}</Badge>
                           </div>
-                          <div className="h-2 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full bg-accent rounded-full" style={{ width: `${pct}%` }} />
+                          <div className="h-1.5 bg-muted/60 rounded-full overflow-hidden">
+                            <div className="h-full bg-gradient-danger rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
                           </div>
                         </div>
                       );

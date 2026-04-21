@@ -18,6 +18,9 @@ interface SiteSummary {
 
 interface TopIp { ip: string; count: number }
 
+interface TopGroupClient { group_client: string; count: number }
+interface VaTitleGrouping { va_title_grouping: string; count: number }
+
 interface AgeingBucket { os: number; application: number }
 
 interface VaSiteSummary {
@@ -37,6 +40,8 @@ interface DashboardResponse {
   total_sites: number;
   site_summary: SiteSummary[];
   top_ips: TopIp[];
+  top_group_clients?: TopGroupClient[];
+  va_title_grouping_summary?: VaTitleGrouping[];
   va_site_summary: VaSiteSummary[];
 }
 

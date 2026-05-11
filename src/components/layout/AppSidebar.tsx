@@ -1,4 +1,4 @@
-import { LayoutDashboard, Workflow, KeyRound, Shield } from "lucide-react";
+import { LayoutDashboard, Workflow, KeyRound, Shield, Upload, Users } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -15,6 +15,8 @@ import {
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Process Excel", url: "/process", icon: Workflow },
+  { title: "Owner Mappings", url: "/owners", icon: Users },
+  { title: "Admin Uploads", url: "/admin", icon: Upload },
   { title: "Nexpose Settings", url: "/settings", icon: KeyRound },
 ];
 
